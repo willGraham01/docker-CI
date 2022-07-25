@@ -1,0 +1,29 @@
+name: deploy-pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout-repo-content
+        uses: actions/checkout@v2
+      - name: prepare-build-env
+        run: |
+          mkdir -p build
+          touch build/.nojekyll
+      - name: run-pandoc
+        uses: docker://pandoc/core:2.12
+        with:
+          args: >-
+            --standalone
+            --output=build/index.html
+            README.md
+      - name: deploy-on-ghpages
+        uses: JamesIves/github-pages-deploy-action@4.1.0
+        with:
+          branch: gh-pages
+          folder: build
